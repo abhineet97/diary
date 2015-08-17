@@ -1,9 +1,7 @@
 diary
 =====
->A bash Script that help you keep a diary.
-
 Simple bash script that helps you keep a virtual text-only diary.  
-Don't worry about anybody else reading your Diary because `diary` encrypts all entries.
+Entries are encrypted automatically.
 
 Usage
 -----
