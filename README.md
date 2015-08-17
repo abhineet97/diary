@@ -1,16 +1,14 @@
 diary
 =====
->Keep a diary.
+>A bash Script that help you keep a diary.
 
-Simple bash script that helps you keep a virtual text-only diary.
-
-Don't worry about anybody else reading your diary because diary.sh encrypts all entries.
+Simple bash script that helps you keep a virtual text-only diary.  
+Don't worry about anybody else reading your Diary because `diary` encrypts all entries.
 
 Usage
 -----
-First of all you might wanna set some configs in the `.diaryrc` file like for example the editor to use to write entries in (default is vim)
-
-After that simply invoke diary to create a new entry and then go ahead and type your first diary entry.
+First of all you might wanna change some configs in the `.diaryrc` file like for example the editor to use to write entries in (default is vim)  
+After that simply invoke `diary` to create a new entry and then go ahead and type your first diary entry.
 
 ```sh
 ./diary
@@ -26,7 +24,7 @@ For encrypting the entries do:
 
 About The Encryption
 -------------------
-diary uses GPG with `-c` (symmetric) switch to encrypt a gziped tar file containing all the diary entries.
+`diary` uses GPG with `-c` (symmetric) switch to encrypt a gziped tar file containing all the diary entries.
 
 License
 -------
