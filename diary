@@ -3,59 +3,59 @@
 configs=./.diaryrc
 date_format=+%d-%b-%Y
 ext="md"
-file="$(date $date_format).$ext"
+file="$(date ${date_format}).${ext}"
 entries="entries"
 editor="vim"
 
-if [[ -d $configs ]]; then
-  source "$configs"
+if [[ -d ${configs} ]]; then
+  source "${configs}"
 fi
 
 new_entry() {
-if [[ -f $entries.tar.gz.gpg ]]; then
+if [[ -f ${entries}.tar.gz.gpg ]]; then
   decrypt_entries
-elif [[ ! -d $entries ]]; then
-  echo "Creating a new directory $entries ..."
-  mkdir $entries
+elif [[ ! -d ${entries} ]]; then
+  echo "Creating a new directory ${entries} ..."
+  mkdir ${entries}
 fi
 echo "Creating A New Entry..."
-printf "\n#%s\n" "$(date +%H:%M)" >> "$entries/$file"
-$editor "$entries/$file"
+printf "\n#%s\n" "$(date +%H:%M)" >> "${entries}/${file}"
+${editor} "${entries}/${file}"
 }
 
 encrypt_entries() {
-if [[ -f "$entries.tar.gz.gpg" ]]; then
-  echo "$entries.tar.gz.gpg already present."
+if [[ -f "${entries}.tar.gz.gpg" ]]; then
+  echo "${entries}.tar.gz.gpg already present."
   return 1
-elif [[ ! -d "$entries" ]]; then
+elif [[ ! -d "${entries}" ]]; then
   echo "No Entries directory present to encrypt."
   return 1
-elif [[ -z $(ls $entries/*.$ext) ]]; then
+elif [[ -z $(ls ${entries}/*.${ext}) ]]; then
   echo "No unencrypted file present in entries directory"
   return 1
-elif [[ ! -f "$entries.tar.gz" ]]; then
-  tar czf $entries.tar.gz $entries
+elif [[ ! -f "${entries}.tar.gz" ]]; then
+  tar czf ${entries}.tar.gz ${entries}
 fi
 echo "Encrypting Diary Entries..."
-gpg -c $entries.tar.gz
+gpg -c ${entries}.tar.gz
 if [[ $? = 0 ]]; then
-  rm -rf $entries.tar.gz $entries
+  rm -rf ${entries}.tar.gz ${entries}
 fi
 }
 
 decrypt_entries() {
-if [[ -d $entries ]]; then
-  echo "A decrypted $entries directory is already present"
+if [[ -d ${entries} ]]; then
+  echo "A decrypted ${entries} directory is already present"
   return 0
-elif [[ ! -f $entries.tar.gz.gpg ]]; then
-  echo "Cannot find $entries.tar.gz.gpg"
+elif [[ ! -f ${entries}.tar.gz.gpg ]]; then
+  echo "Cannot find ${entries}.tar.gz.gpg"
   return 1
 fi
 echo "Decrypting Diary Entries..."
-gpg -d $entries.tar.gz.gpg > $entries.tar.gz
+gpg -d ${entries}.tar.gz.gpg > ${entries}.tar.gz
 if [[ $? = 0 ]]; then
-  tar xzf $entries.tar.gz
-  rm -rf $entries.tar.gz.gpg $entries.tar.gz
+  tar xzf ${entries}.tar.gz
+  rm -rf ${entries}.tar.gz.gpg ${entries}.tar.gz
 fi
 }
 
