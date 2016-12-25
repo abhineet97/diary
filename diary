@@ -6,6 +6,20 @@ file="$(date ${date_format}).${ext}"
 entries="entries"
 editor="vim"
 
+usage() {
+  cat <<END
+Usage: $0 [OPTION]
+
+Keep an encrypted diary.
+
+Options:
+  -h
+  -e
+  -d
+END
+exit 0
+}
+
 new_entry() {
   if [[ -f ${entries}.tar.gz.gpg ]]; then
     decrypt_entries
@@ -63,5 +77,19 @@ if [[ -n $1 ]]; then
   exit $?
 fi
 
-new_entry
-encrypt_entries
+main() {
+  local flag
+
+  while getopts h:e:d flag; do
+    case ${flag} in
+      h) usage ;;
+      d) decrypt_entries ;;
+      e) encrypt_entries ;;
+      *) usage ;;
+    esac
+  done
+}
+main "$@"
+
+#new_entry
+#encrypt_entries
