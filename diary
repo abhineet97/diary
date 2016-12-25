@@ -1,15 +1,10 @@
 #!/bin/bash
 
-configs=./.diaryrc
 date_format=+%d-%b-%Y
 ext="md"
 file="$(date ${date_format}).${ext}"
 entries="entries"
 editor="vim"
-
-if [[ -d ${configs} ]]; then
-  source "${configs}"
-fi
 
 new_entry() {
 if [[ -f ${entries}.tar.gz.gpg ]]; then

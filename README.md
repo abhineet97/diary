@@ -5,8 +5,7 @@ Entries are encrypted automatically.
 
 Usage
 -----
-First of all you might wanna change some configs in the `.diaryrc` file like for example the editor to use to write entries in (default is vim)  
-After that simply invoke `diary` to create a new entry and then go ahead and type your first diary entry.
+Simply invoke `diary` to create a new entry and then go ahead and type your first diary entry.
 
 ```sh
 ./diary
