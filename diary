@@ -11,6 +11,15 @@ err() {
   return 1
 }
 
+precheck() {
+  readonly REQUIRES=( "${editor}" "gpg" "tar" )
+  for prog in ${REQUIRES[$@]}; do
+    if [[ -z "$(which ${prog})" ]];
+      err "$prog not installed."
+    fi
+  done
+}
+
 new_entry() {
   if [[ -f ${entries}.tar.gz.gpg ]]; then
     decrypt_entries
@@ -53,6 +62,8 @@ decrypt_entries() {
     rm -rf ${entries}.tar.gz.gpg ${entries}.tar.gz
   fi
 }
+
+precheck
 
 if [[ -n $1 ]]; then
   if [[ $1 = "-e" ]]; then
