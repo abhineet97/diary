@@ -6,6 +6,11 @@ file="$(date ${date_format}).${ext}"
 entries="entries"
 editor="vim"
 
+err() {
+  echo "ERROR: $@" >&2
+  return 1
+}
+
 new_entry() {
   if [[ -f ${entries}.tar.gz.gpg ]]; then
     decrypt_entries
@@ -20,14 +25,11 @@ new_entry() {
 
 encrypt_entries() {
   if [[ -f "${entries}.tar.gz.gpg" ]]; then
-    echo "${entries}.tar.gz.gpg already present."
-    return 1
+    err "${entries}.tar.gz.gpg already present."
   elif [[ ! -d "${entries}" ]]; then
-    echo "No Entries directory present to encrypt."
-    return 1
+    err "No Entries directory present to encrypt."
   elif [[ -z $(ls ${entries}/*.${ext}) ]]; then
-    echo "No unencrypted file present in entries directory"
-    return 1
+    err "No unencrypted file present in entries directory"
   elif [[ ! -f "${entries}.tar.gz" ]]; then
     tar czf ${entries}.tar.gz ${entries}
   fi
@@ -40,11 +42,9 @@ encrypt_entries() {
 
 decrypt_entries() {
   if [[ -d ${entries} ]]; then
-    echo "A decrypted ${entries} directory is already present"
-    return 0
+    err "A decrypted ${entries} directory is already present"
   elif [[ ! -f ${entries}.tar.gz.gpg ]]; then
-    echo "Cannot find ${entries}.tar.gz.gpg"
-    return 1
+    err "Cannot find ${entries}.tar.gz.gpg"
   fi
   echo "Decrypting Diary Entries..."
   gpg -d ${entries}.tar.gz.gpg > ${entries}.tar.gz
