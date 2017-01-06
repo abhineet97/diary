@@ -35,7 +35,11 @@ new_entry() {
   if [[ "$?" -ne 0 ]]; then
     err "Failed to encrypt ${file}"
   fi
+
   rm ${file}
+  if [[ "$?" -ne 0 ]]; then
+    err "Failed to delete ${file}"
+  fi
 }
 
 main(){
