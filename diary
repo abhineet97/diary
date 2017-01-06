@@ -1,78 +1,44 @@
 #!/bin/bash
 
 date_format=+%d-%b-%Y
+time_format=+%H:%M
 ext="md"
-file="$(date ${date_format}).${ext}"
-entries="entries"
+entries="$(pwd)/entries"
+file="${entries}/$(date ${date_format}).${ext}"
 editor="vim"
 
 err() {
   echo "ERROR: $@" >&2
-  return 1
+  exit 1
 }
 
 precheck() {
-  readonly REQUIRES=( "${editor}" "gpg" "tar" )
+  readonly REQUIRES=( "${editor}" "gpg" )
   for prog in ${REQUIRES[$@]}; do
-    if [[ -z "$(which ${prog})" ]];
+    if [[ -z "$(which ${prog})" ]]; then
       err "$prog not installed."
     fi
   done
+  if ! [[ -d ${entries} ]]; then
+    mkdir ${entries}
+  fi
 }
 
 new_entry() {
-  if [[ -f ${entries}.tar.gz.gpg ]]; then
-    decrypt_entries
-  elif [[ ! -d ${entries} ]]; then
-    echo "Creating a new directory ${entries} ..."
-    mkdir ${entries}
+  printf "\n#%s\n" "$(date ${time_format})" >> "${file}"
+  ${editor} "${file}"
+  if [[ "$?" -ne 0 ]]; then
+    err "Failed to save ${file}"
   fi
-  echo "Creating A New Entry..."
-  printf "\n#%s\n" "$(date +%H:%M)" >> "${entries}/${file}"
-  ${editor} "${entries}/${file}"
+
+  gpg -c "${file}"
+  if [[ "$?" -ne 0 ]]; then
+    err "Failed to encrypt ${file}"
+  fi
+  rm ${file}
 }
 
-encrypt_entries() {
-  if [[ -f "${entries}.tar.gz.gpg" ]]; then
-    err "${entries}.tar.gz.gpg already present."
-  elif [[ ! -d "${entries}" ]]; then
-    err "No Entries directory present to encrypt."
-  elif [[ -z $(ls ${entries}/*.${ext}) ]]; then
-    err "No unencrypted file present in entries directory"
-  elif [[ ! -f "${entries}.tar.gz" ]]; then
-    tar czf ${entries}.tar.gz ${entries}
-  fi
-  echo "Encrypting Diary Entries..."
-  gpg -c ${entries}.tar.gz
-  if [[ $? = 0 ]]; then
-    rm -rf ${entries}.tar.gz ${entries}
-  fi
+main(){
+  precheck
+  new_entry
 }
-
-decrypt_entries() {
-  if [[ -d ${entries} ]]; then
-    err "A decrypted ${entries} directory is already present"
-  elif [[ ! -f ${entries}.tar.gz.gpg ]]; then
-    err "Cannot find ${entries}.tar.gz.gpg"
-  fi
-  echo "Decrypting Diary Entries..."
-  gpg -d ${entries}.tar.gz.gpg > ${entries}.tar.gz
-  if [[ $? = 0 ]]; then
-    tar xzf ${entries}.tar.gz
-    rm -rf ${entries}.tar.gz.gpg ${entries}.tar.gz
-  fi
-}
-
-precheck
-
-if [[ -n $1 ]]; then
-  if [[ $1 = "-e" ]]; then
-    encrypt_entries
-  elif [[ $1 = "-d" ]]; then
-    decrypt_entries
-  fi
-  exit $?
-fi
-
-new_entry
-encrypt_entries
