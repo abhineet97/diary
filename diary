@@ -27,7 +27,13 @@ precheck() {
 new_entry() {
   if [[ -e ${file}.gpg ]]; then
     echo "INFO: ${file}.gpg already exists."
+
     gpg -d "${file}.gpg" > ${file}
+    if [[ "$?" -ne 0 ]]; then
+      err "Failed to decrypt ${file}.gpg"
+    fi
+
+    rm "${file}.gpg"
   fi
 
   printf "\n#%s\n" "$(date ${time_format})" >> "${file}"
@@ -43,9 +49,6 @@ new_entry() {
   fi
 
   rm ${file}
-  if [[ "$?" -ne 0 ]]; then
-    err "Failed to delete ${file}"
-  fi
 }
 
 main(){
