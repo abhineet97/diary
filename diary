@@ -64,11 +64,12 @@ encrypt_entry() {
 
 edit_entry() {
   local entry="$1"
+  local timestamp=$(date +"${DATE_FORMAT} ${TIME_FORMAT}") 
   if [[ -e "${entry}.gpg" ]]; then
     decrypt_entry "${entry}"
-    local timestamp=$(date +"${DATE_FORMAT} ${TIME_FORMAT}") 
-    printf "\n#%s\n" "${timestamp}" >> "${entry}"
   fi
+  
+  printf "\n#%s\n" "${timestamp}" >> "${entry}"
 
   ${EDITOR} "${entry}"
   if [[ "$?" -ne "0" ]]; then
