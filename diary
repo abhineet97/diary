@@ -1,11 +1,26 @@
 #!/bin/bash
 
-date_format=+%d-%b-%Y
-time_format=+%H:%M
-ext="md"
-entries="$(pwd)/entries"
-file="${entries}/$(date ${date_format}).${ext}"
-editor="vim"
+readonly DATE_FORMAT=%d-%b-%Y
+readonly TIME_FORMAT=%H:%M
+readonly EXT="md"
+readonly ENTRIES="$(pwd)/entries"
+readonly EDITOR="vim"
+
+usage() {
+  cat <<END
+Usage: $0 [-e] <date>
+Manage an encrypted diary
+
+Creates a new entry for today when no option is specified.
+
+Options:
+  -e <date>    Edit a specific <date>
+  -h           Show this screen
+
+Note: <date> should be in $(date +${DATE_FORMAT}) format.
+END
+  exit 2
+}
 
 err() {
   echo "ERROR: $@" >&2
@@ -13,46 +28,77 @@ err() {
 }
 
 precheck() {
-  readonly REQUIRES=( "${editor}" "gpg" )
+  readonly REQUIRES=( "${EDITOR}" "gpg" )
   for prog in ${REQUIRES[$@]}; do
     if [[ -z "$(which ${prog})" ]]; then
       err "$prog not installed."
     fi
   done
-  if ! [[ -d ${entries} ]]; then
-    mkdir ${entries}
+  if ! [[ -d ${ENTRIES} ]]; then
+    mkdir ${ENTRIES}
   fi
 }
 
-new_entry() {
-  if [[ -e ${file}.gpg ]]; then
-    echo "INFO: ${file}.gpg already exists."
-
-    gpg -d "${file}.gpg" > ${file}
-    if [[ "$?" -ne 0 ]]; then
-      err "Failed to decrypt ${file}.gpg"
-    fi
-
-    rm "${file}.gpg"
+decrypt_entry() {
+  local entry="$1"
+  if ! [[ -e "${entry}.gpg" ]]; then
+    err "${entry}.gpg does not exist."
   fi
 
-  printf "\n#%s\n" "$(date ${time_format})" >> "${file}"
+  gpg -d "${entry}.gpg" > "${entry}"
+  if [[ "$?" -ne "0" ]]; then
+    err "Failed to decrypt ${entry}.gpg"
+  fi
+  rm "${entry}.gpg"
+}
 
-  ${editor} "${file}"
-  if [[ "$?" -ne 0 ]]; then
-    err "Failed to save ${file}"
+encrypt_entry() {
+  local entry="$1"
+
+  gpg -c "${entry}"
+  if [[ "$?" -ne "0" ]]; then
+    err "Failed to encrypt ${entry}"
+  fi
+  rm "${entry}"
+}
+
+edit_entry() {
+  local entry="$1"
+  if [[ -e "${entry}.gpg" ]]; then
+    decrypt_entry "${entry}"
+    local timestamp=$(date +"${DATE_FORMAT} ${TIME_FORMAT}") 
+    printf "\n#%s\n" "${timestamp}" >> "${entry}"
   fi
 
-  gpg -c "${file}"
-  if [[ "$?" -ne 0 ]]; then
-    err "Failed to encrypt ${file}"
+  ${EDITOR} "${entry}"
+  if [[ "$?" -ne "0" ]]; then
+    err "Failed to save ${entry}"
   fi
 
-  rm ${file}
+  encrypt_entry "${entry}"
+  exit 0
+}
+
+todays_entry() {
+  local entry="${ENTRIES}/$(date "+${DATE_FORMAT}").${EXT}"
+  edit_entry "${entry}"
 }
 
 main(){
   precheck
-  new_entry
+  local arg
+  while getopts "e:h" arg; do
+    case ${arg} in
+      e) edit_entry ${OPTARG} ;;
+      o) open_entry ${OPTARG} ;;
+      h) usage ;;
+      ?) usage ;;
+    esac
+  done
+
+  if [[ -z ${OPTARG} ]]; then
+    todays_entry
+  fi
 }
-main
+main "$@"
+
