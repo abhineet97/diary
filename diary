@@ -8,7 +8,7 @@ readonly EDITOR="vim"
 
 usage() {
   cat <<END
-Usage: $0 [-e] <date>
+Usage: $0 <date>
 Manage an encrypted diary
 
 Creates a new entry for today when no <date> is specified.
