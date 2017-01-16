@@ -90,7 +90,6 @@ main(){
   while getopts "h" arg; do
     case ${arg} in
       h) usage ;;
-      ?) usage ;;
     esac
   done
 
