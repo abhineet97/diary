@@ -14,7 +14,6 @@ Manage an encrypted diary
 Creates a new entry for today when no <date> is specified.
 
 Options:
-  -e <date>    Edit a specific <date>
   -h           Show this screen
 
 Note: <date> should look like $(date +${DATE_FORMAT}) or as specified in the DATE_FORMAT variable of the script.
@@ -88,10 +87,8 @@ todays_entry() {
 main(){
   precheck
   local arg
-  while getopts "e:h" arg; do
+  while getopts "h" arg; do
     case ${arg} in
-      e) edit_entry ${OPTARG} ;;
-      o) open_entry ${OPTARG} ;;
       h) usage ;;
       ?) usage ;;
     esac
