@@ -11,13 +11,13 @@ usage() {
 Usage: $0 [-e] <date>
 Manage an encrypted diary
 
-Creates a new entry for today when no option is specified.
+Creates a new entry for today when no <date> is specified.
 
 Options:
   -e <date>    Edit a specific <date>
   -h           Show this screen
 
-Note: <date> should be in $(date +${DATE_FORMAT}) format.
+Note: <date> should look like $(date +${DATE_FORMAT}) or as specified in the DATE_FORMAT variable of the script.
 END
   exit 2
 }
