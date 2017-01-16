@@ -85,13 +85,14 @@ todays_entry() {
 }
 
 main(){
-  precheck
   local arg
   while getopts "h" arg; do
     case ${arg} in
       h) usage ;;
     esac
   done
+  
+  precheck
 
   if [[ -z ${OPTARG} ]]; then
     todays_entry
